@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>50 States Trivia Game</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #74ebd5, #ACB6E5);
+      text-align: center;
+      padding: 2em;
+      color: #333;
+    }
+    h1 {
+      margin-bottom: 1em;
+      color: #222;
+    }
+    .question {
+      font-size: 1.5em;
+      margin-bottom: 0.5em;
+    }
+    .timer {
+      font-size: 1.2em;
+      margin-bottom: 1em;
+      color: #e63946;
+    }
+    .choices {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 1em;
+    }
+    .choice-btn {
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #f0f0f0;
+      box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+      transition: background 0.3s;
+    }
+    .choice-btn:hover {
+      background-color: #ddd;
+    }
+    #feedback {
+      font-size: 1.2em;
+      margin-bottom: 1em;
+      height: 1.5em;
+    }
+    #score {
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+    #resetBtn {
+      margin-top: 1em;
+      padding: 8px 16px;
+      font-size: 1em;
+      border: none;
+      background-color: #457b9d;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #resetBtn:hover {
+      background-color: #1d3557;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>50 States Trivia Game</h1>
+  <div class="question" id="questionText">Loading...</div>
+  <div class="timer" id="timerText">Time left: 15</div>
+  <div class="choices" id="choicesContainer"></div>
+  <div id="feedback"></div>
+  <div id="score">Score: 0</div>
+  <button id="resetBtn" onclick="resetGame()">🔄 Reset Game</button>
+
+  <script>
+    const questions = [
+      { question: "Which state is known as the Heart of Dixie?", answer: "Alabama" },
+      { question: "Which state has the tallest mountain in North America?", answer: "Alaska" },
+      { question: "Which state is home to the Grand Canyon?", answer: "Arizona" },
+      { question: "Which state is known for Hot Springs National Park?", answer: "Arkansas" },
+      { question: "Which state is home to Hollywood?", answer: "California" },
+      { question: "Which state is known for the Rocky Mountains and skiing?", answer: "Colorado" },
+      { question: "Which state has the nickname 'The Constitution State'?", answer: "Connecticut" },
+      { question: "Which state was the first to ratify the U.S. Constitution?", answer: "Delaware" },
+      { question: "Which state is known as the Sunshine State?", answer: "Florida" },
+      { question: "Which state hosted the 1996 Summer Olympics in Atlanta?", answer: "Georgia" },
+      { question: "Which state is home to active volcanoes like Mauna Loa and Kilauea?", answer: "Hawaii" },
+      { question: "Which state is known for potatoes?", answer: "Idaho" },
+      { question: "Which state has the city of Chicago?", answer: "Illinois" },
+      { question: "Which state hosts the Indy 500 car race?", answer: "Indiana" },
+      { question: "Which state is known for the Iowa State Fair?", answer: "Iowa" },
+      { question: "Which state is home to the geographic center of the contiguous U.S.?", answer: "Kansas" },
+      { question: "Which state is famous for bluegrass music and horse racing?", answer: "Kentucky" },
+      { question: "Which state has the city of New Orleans?", answer: "Louisiana" },
+      { question: "Which state is known for Acadia National Park?", answer: "Maine" },
+      { question: "Which state surrounds the Chesapeake Bay?", answer: "Maryland" },
+      { question: "Which state is home to the Boston Tea Party site?", answer: "Massachusetts" },
+      { question: "Which state borders 4 of the Great Lakes?", answer: "Michigan" },
+      { question: "Which state is known as the Land of 10,000 Lakes?", answer: "Minnesota" },
+      { question: "Which state is the birthplace of Elvis Presley?", answer: "Mississippi" },
+      { question: "Which state has the Gateway Arch in St. Louis?", answer: "Missouri" },
+      { question: "Which state is home to Glacier National Park?", answer: "Montana" },
+      { question: "Which state has Omaha and Lincoln?", answer: "Nebraska" },
+      { question: "Which state is known for Las Vegas?", answer: "Nevada" },
+      { question: "Which state holds the first primary in U.S. elections?", answer: "New Hampshire" },
+      { question: "Which state is home to Atlantic City?", answer: "New Jersey" },
+      { question: "Which state contains the city of Santa Fe?", answer: "New Mexico" },
+      { question: "Which state is known as the Empire State?", answer: "New York" },
+      { question: "Which state is home to the Outer Banks?", answer: "North Carolina" },
+      { question: "Which state has Mount Rushmore?", answer: "South Dakota" },
+      { question: "Which state is home to the Wright Brothers' first flight?", answer: "North Carolina" },
+      { question: "Which state has the city of Cleveland?", answer: "Ohio" },
+      { question: "Which state is known for tornadoes and is part of Tornado Alley?", answer: "Oklahoma" },
+      { question: "Which state is home to Crater Lake?", answer: "Oregon" },
+      { question: "Which state is known for the Liberty Bell and Hershey chocolate?", answer: "Pennsylvania" },
+      { question: "Which state is the smallest in land area?", answer: "Rhode Island" },
+      { question: "Which state is known for peaches and sweet tea?", answer: "South Carolina" },
+      { question: "Which state is home to the Smoky Mountains and country music?", answer: "Tennessee" },
+      { question: "Which state is known as the Lone Star State?", answer: "Texas" },
+      { question: "Which state is home to the Great Salt Lake?", answer: "Utah" },
+      { question: "Which state is known for maple syrup and fall foliage?", answer: "Vermont" },
+      { question: "Which state has the Pentagon and Mount Vernon?", answer: "Virginia" },
+      { question: "Which state is home to Seattle and Mount Rainier?", answer: "Washington" },
+      { question: "Which state is the only one completely within the Appalachian Mountains?", answer: "West Virginia" },
+      { question: "Which state is famous for cheese and the Green Bay Packers?", answer: "Wisconsin" },
+      { question: "Which state is the least populated in the U.S.?", answer: "Wyoming" }
+    ];
+
+    const allStates = questions.map(q => q.answer);
+    let score = 0;
+    let usedQuestions = [];
+    let timer;
+    let timeLeft = 15;
+
+    function pickQuestion() {
+      clearInterval(timer);
+      timeLeft = 15;
+      document.getElementById("timerText").textContent = `Time left: ${timeLeft}`;
+
+      if (usedQuestions.length === questions.length) {
+        document.getElementById("questionText").textContent = "🎉 You completed all 50 states!";
+        document.getElementById("choicesContainer").innerHTML = "";
+        return;
+      }
+
+      let current;
+      do {
+        current = questions[Math.floor(Math.random() * questions.length)];
+      } while (usedQuestions.includes(current));
+
+      usedQuestions.push(current);
+      document.getElementById("questionText").textContent = current.question;
+      document.getElementById("feedback").textContent = "";
+
+      const choices = [current.answer];
+      while (choices.length < 4) {
+        const random = allStates[Math.floor(Math.random() * allStates.length)];
+        if (!choices.includes(random)) choices.push(random);
+      }
+
+      choices.sort(() => 0.5 - Math.random());
+
+      const container = document.getElementById("choicesContainer");
+      container.innerHTML = "";
+      choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.className = "choice-btn";
+        btn.textContent = choice;
+        btn.onclick = () => checkAnswer(choice, current.answer);
+        container.appendChild(btn);
+      });
+
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timerText").textContent = `Time left: ${timeLeft}`;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          checkAnswer(null, current.answer);
+        }
+      }, 1000);
+    }
+
+    function checkAnswer(selected, correct) {
+      clearInterval(timer);
+      const feedback = document.getElementById("feedback");
+      if (selected === correct) {
+        feedback.textContent = "✅ Correct!";
+        feedback.style.color = "green";
+        score++;
+      } else if (selected === null) {
+        feedback.textContent = `⏱ Time's up! Correct answer: ${correct}`;
+        feedback.style.color = "orange";
+      } else {
+        feedback.textContent = `❌ Incorrect! Correct answer: ${correct}`;
+        feedback.style.color = "red";
+      }
+      document.getElementById("score").textContent = `Score: ${score}`;
+      setTimeout(pickQuestion, 2000);
+    }
+
+    function resetGame() {
+      score = 0;
+      usedQuestions = [];
+      document.getElementById("score").textContent = `Score: 0`;
+      document.getElementById("feedback").textContent = "";
+      pickQuestion();
+    }
+
+    window.onload = pickQuestion;
+  </script>
+
+</body>
+</html>
